@@ -32,7 +32,7 @@
 #include <unistd.h>
 
 #include "ldminfo.h"
-#include "b.h"
+#include "common.h"
 
 #define BUFSIZE_BITS	12
 #define BUFSIZE		(1 << BUFSIZE_BITS)

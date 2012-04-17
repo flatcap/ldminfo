@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <endian.h>
 
-#include "b.h"
+#include "common.h"
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
 #define be16_to_cpu(s) bswap_16(s)

@@ -1,7 +1,7 @@
 #ifndef __LDMINFO_H_
 #define __LDMINFO_H_
 
-#include "b.h"
+#include "common.h"
 #include "ldm.h"
 
 struct list_head;

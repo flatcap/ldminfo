@@ -30,7 +30,7 @@
 #include <unistd.h>
 
 #include "ldminfo.h"
-#include "b.h"
+#include "common.h"
 
 int device = 0;
 int debug  = 0;
