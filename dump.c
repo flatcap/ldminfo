@@ -21,8 +21,8 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-//#include <linux/list.h>
 
+#include <stdio.h>
 #include <string.h>
 
 #include "ldminfo.h"

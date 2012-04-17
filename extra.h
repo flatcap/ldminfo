@@ -1,8 +1,6 @@
 #ifndef _LDM_EXTRA_H_
 #define _LDM_EXTRA_H_
 
-/* Work around <linux/config.h> */
-
 #define CONFIG_LDM_DEBUG 1
 
 #define PARTITION_META_INFO_VOLNAMELTH	64

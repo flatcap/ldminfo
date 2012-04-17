@@ -21,10 +21,14 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <sys/types.h>
+#include <unistd.h>
+
 #include "ldminfo.h"
 
 int device = 0;
@@ -205,9 +209,9 @@ struct buffer_head * ldm_bread (kdev_t dev, int block, int size)
 		bh->b_data = kmalloc (size, 0);
 
 		if (lseek (device, offset, SEEK_SET) < 0)
-			printk (LDM_CRIT "lseek to %lld failed\n", offset);
+			printk ("[CRIT] lseek to %lld failed\n", offset);
 		else if (read (device, bh->b_data, size) < size)
-			printk (LDM_CRIT "read failed\n");
+			printk ("[CRIT] read failed\n");
 		else
 			goto bread_end;
 

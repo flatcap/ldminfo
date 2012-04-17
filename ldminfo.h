@@ -1,17 +1,9 @@
 #ifndef __LDMINFO_H_
 #define __LDMINFO_H_
 
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-
 #include "ldm.h"
 
-#define LDM_CRIT	"[CRIT]"
-#define LDM_ERR		"[ERR]"
-#define LDM_INFO	"[INFO]"
-#define LDM_DEBUG	"[DEBUG]"
+struct list_head;
 
 extern int device;
 extern int debug;
