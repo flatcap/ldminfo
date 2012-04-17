@@ -26,9 +26,6 @@ struct parsed_partitions {
 void * __kmalloc (size_t size, int flags, const char *fn);
 void   __kfree   (const void *objp, const char *fn);
 
-#define kmalloc(X,Y)	__kmalloc(X,Y,__FUNCTION__)
-#define kfree(X)	__kfree(X,__FUNCTION__)
-
 #ifdef page_cache_release
 #undef page_cache_release
 #endif
@@ -40,16 +37,6 @@ void   __kfree   (const void *objp, const char *fn);
 struct page;
 void page_cache_release (struct page *page);
 void __free_page (struct page *page);
-
-struct inode {
-	loff_t			i_size;
-};
-
-struct block_device {
-	dev_t			bd_dev;  /* not a kdev_t - it's a search key */
-	struct inode *		bd_inode;	/* will die */
-	struct gendisk *	bd_disk;
-};
 
 #endif /* _LDM_EXTRA_H_ */
 

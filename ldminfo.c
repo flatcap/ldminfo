@@ -32,6 +32,7 @@
 
 #include "ldminfo.h"
 #include "extra.h"
+#include "b.h"
 
 #define stat64 stat
 void ldm_free_vblks(struct list_head *lh);

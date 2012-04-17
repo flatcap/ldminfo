@@ -32,12 +32,10 @@
 #include <unistd.h>
 
 #include "ldminfo.h"
+#include "b.h"
 
 #define BUFSIZE_BITS	12
 #define BUFSIZE		(1 << BUFSIZE_BITS)
-
-#define kmalloc(S,F)	malloc(S)
-#define kfree(S)	free(S)
 
 u64 get_unaligned_be64 (const u8 *ptr);
 

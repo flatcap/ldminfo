@@ -1,8 +1,13 @@
+#ifndef _A_H_
+#define _A_H_
+
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <endian.h>
+
+#include "b.h"
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
 #define be16_to_cpu(s) bswap_16(s)
@@ -22,7 +27,6 @@
 
 const bool true  = 1;
 const bool false = 0;
-const int GFP_KERNEL = 1;
 
 #define BUG() do { \
 	printf("BUG: failure at %s:%d/%s()!\n", __FILE__, __LINE__, __func__); \
@@ -31,23 +35,12 @@ const int GFP_KERNEL = 1;
 
 #define BUG_ON(condition) do { if (condition) BUG(); } while(0)
 
-#define KERN_EMERG      "<0>"   /* system is unusable                   */
-#define KERN_ALERT      "<1>"   /* action must be taken immediately     */
 #define KERN_CRIT       "<2>"   /* critical conditions                  */
 #define KERN_ERR        "<3>"   /* error conditions                     */
-#define KERN_WARNING    "<4>"   /* warning conditions                   */
-#define KERN_NOTICE     "<5>"   /* normal but significant condition     */
 #define KERN_INFO       "<6>"   /* informational                        */
 #define KERN_DEBUG      "<7>"   /* debug-level messages                 */
 
-#define kmalloc(X,Y)	__kmalloc(X,Y,__FUNCTION__)
-#define kfree(X)	__kfree(X,__FUNCTION__)
-
-#define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
-#define container_of(ptr, type, member) ({ const typeof( ((type *)0)->member ) *__mptr = (ptr); (type *)( (char *)__mptr - offsetof(type,member) );})
-#define list_entry(ptr, type, member) container_of(ptr, type, member)
-#define list_for_each(pos, head) for (pos = (head)->next; pos != (head); pos = pos->next)
-#define list_for_each_safe(pos, n, head) for (pos = (head)->next, n = pos->next; pos != (head); pos = n, n = pos->next)
+#define get_unaligned(X) (*(X))
 
 struct page {};
 typedef struct {struct page *v;} Sector;
@@ -59,16 +52,6 @@ typedef struct {struct page *v;} Sector;
 
 #define MSDOS_LABEL_MAGIC		0xAA55
 #define PAGE_SIZE			4096
-
-struct inode {
-	loff_t			i_size;
-};
-
-struct block_device {
-	dev_t			bd_dev;  /* not a kdev_t - it's a search key */
-	struct inode *		bd_inode;	/* will die */
-	struct gendisk *	bd_disk;
-};
 
 typedef size_t sector_t;
 struct parsed_partitions {
@@ -116,4 +99,6 @@ void put_partition(struct parsed_partitions *pp, int part_num, long long a, long
 void list_add(struct list_head *new, struct list_head *head);
 void list_add_tail(struct list_head *new, struct list_head *head);
 void INIT_LIST_HEAD(struct list_head *list);
+
+#endif // _A_H_
 

@@ -30,6 +30,7 @@
 #include <unistd.h>
 
 #include "ldminfo.h"
+#include "b.h"
 
 int device = 0;
 int debug  = 0;
@@ -61,12 +62,6 @@ struct buffer_head {
 	//atomic_t b_count;		/* users using this buffer_head */
 };
 
-struct block_device {
-	dev_t			bd_dev;  /* not a kdev_t - it's a search key */
-	struct inode *		bd_inode;	/* will die */
-	struct gendisk *	bd_disk;
-};
-
 typedef size_t sector_t;
 struct parsed_partitions {
 	struct block_device *bdev;
@@ -96,9 +91,6 @@ int ldm_mem_count = 0;	/* Number of memory blocks */
 int ldm_mem_maxc  = 0;	/* Max memory blocks */
 
 #define max(a, b)  (((a) > (b)) ? (a) : (b))
-
-#define kmalloc(X,Y)	__kmalloc(X,Y,__FUNCTION__)
-#define kfree(X)	__kfree(X,__FUNCTION__)
 
 void put_page (struct page *p)
 {

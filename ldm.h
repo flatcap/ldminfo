@@ -26,25 +26,12 @@
 #ifndef _FS_PT_LDM_H_
 #define _FS_PT_LDM_H_
 
-#if 0
 #include <linux/types.h>
+#include <linux/list.h>
 #include <linux/genhd.h>
 #include <linux/fs.h>
 #include <asm/unaligned.h>
 #include <asm/byteorder.h>
-#endif
-
-typedef unsigned char       u8;
-typedef unsigned short int  u16;
-typedef unsigned int        u32;
-typedef unsigned long long  u64;
-typedef short int           __le16;
-typedef int                 __le32;
-typedef int                 bool;
-
-struct list_head {
-	struct list_head *next, *prev;
-};
 
 struct parsed_partitions;
 
@@ -112,7 +99,7 @@ struct parsed_partitions;
 #define TOC_BITMAP2		"log"		/* bitmaps in the TOCBLOCK. */
 
 /* Borrowed from msdos.c */
-#define SYS_IND(p)		((p)->sys_ind)
+#define SYS_IND(p)		(get_unaligned(&(p)->sys_ind))
 
 struct frag {				/* VBLK Fragment handling */
 	struct list_head list;
