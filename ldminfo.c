@@ -29,6 +29,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include "ldminfo.h"
 #include "common.h"
@@ -164,6 +165,7 @@ int main (int argc, char *argv[])
 		pp.limit = 255;
 		pp.bdev = &bdev;
 		pp.rich_size = size;
+		pp.pp_buf = malloc (256);
 
 		if (ldm_partition (&pp) != 1) {
 			printf ("Something went wrong, skipping device '%s'\n", argv[a]);
@@ -187,12 +189,13 @@ free:
 close:
 		close (device);
 		device = 0;
+		free (pp.pp_buf);
 	}
 
 	if (device)
 		close (device);
 
-	//printf ("%d/%d %d,%d\n", ldm_mem_alloc, ldm_mem_free, ldm_mem_maxa, ldm_mem_maxc);
+	printf ("%d/%d %d,%d\n", ldm_mem_alloc, ldm_mem_free, ldm_mem_maxa, ldm_mem_maxc);
 	return 0;
 }
 

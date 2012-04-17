@@ -227,12 +227,20 @@ void put_partition(struct parsed_partitions *p, int n, int from, int size)
 
 void put_partition(struct parsed_partitions *pp, int part_num, long long a, long long b)
 {
-	printf ("NOTIMPL: %s\n", __func__);
+	static int c = 0;
+	if (!c) {
+		printf ("NOTIMPL: %s\n", __func__);
+		c++;
+	}
 }
 
 void put_dev_sector(Sector p)
 {
-	printf ("NOTIMPL: %s\n", __func__);
+	static int c = 0;
+	if (!c) {
+		printf ("NOTIMPL: %s\n", __func__);
+		c++;
+	}
 }
 
 void *read_part_sector(struct parsed_partitions *state, size_t n, Sector *p)

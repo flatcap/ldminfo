@@ -1,5 +1,5 @@
-#ifndef _B_H_
-#define _B_H_
+#ifndef _COMMON_H_
+#define _COMMON_H_
 
 #include <stddef.h>
 #include <sys/types.h>
@@ -8,8 +8,8 @@ typedef unsigned char       u8;
 typedef unsigned short int  u16;
 typedef unsigned int        u32;
 typedef unsigned long long  u64;
-typedef short int           __le16;
-typedef int                 __le32;
+typedef unsigned short int  __le16;
+typedef unsigned int        __le32;
 
 typedef int bool;
 #define true  1
@@ -57,5 +57,5 @@ struct parsed_partitions {
 	size_t rich_size;
 };
 
-#endif // _B_H_
+#endif // _COMMON_H_
 

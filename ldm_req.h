@@ -1,5 +1,5 @@
-#ifndef _A_H_
-#define _A_H_
+#ifndef _LDM_REQ_H_
+#define _LDM_REQ_H_
 
 #include <stdio.h>
 #include <string.h>
@@ -84,5 +84,5 @@ void list_add(struct list_head *new, struct list_head *head);
 void list_add_tail(struct list_head *new, struct list_head *head);
 void INIT_LIST_HEAD(struct list_head *list);
 
-#endif // _A_H_
+#endif // _LDM_REQ_H_
 
