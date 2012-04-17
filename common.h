@@ -27,12 +27,10 @@ struct inode {
 };
 
 struct inode;
-struct gendisk;
 
 struct block_device {
 	dev_t			bd_dev;
 	struct inode *		bd_inode;
-	struct gendisk *	bd_disk;
 };
 
 #define container_of(ptr, type, member) ({ const typeof( ((type *)0)->member ) *__mptr = (ptr); (type *)( (char *)__mptr - offsetof(type,member) );})
@@ -56,6 +54,7 @@ struct parsed_partitions {
 	int limit;
 	char *pp_buf;
 	struct ldmdb *ldb;
+	size_t rich_size;
 };
 
 #endif // _B_H_

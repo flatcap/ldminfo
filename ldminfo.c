@@ -163,6 +163,7 @@ int main (int argc, char *argv[])
 		pp.parts[0].size = size >> 9;
 		pp.limit = 255;
 		pp.bdev = &bdev;
+		pp.rich_size = size;
 
 		if (ldm_partition (&pp) != 1) {
 			printf ("Something went wrong, skipping device '%s'\n", argv[a]);

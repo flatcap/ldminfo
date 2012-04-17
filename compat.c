@@ -41,7 +41,6 @@ struct page {
 };
 typedef struct {struct page *v;} Sector;
 typedef size_t kdev_t;
-#define atomic_read(X)	(X)
 
 struct buffer_head {
 	unsigned long b_state;		/* buffer state bitmap (see above) */
@@ -58,15 +57,9 @@ struct buffer_head {
 	struct list_head b_assoc_buffers; /* associated with another mapping */
 	struct address_space *b_assoc_map;	/* mapping this buffer is
 						   associated with */
-	//atomic_t b_count;		/* users using this buffer_head */
 };
 
-/* external dependencies */
-void *	malloc	(size_t size);
-void	free	(void *ptr);
-
 /* general kernel functions */
-int printk (const char *fmt, ...);
 void __brelse (struct buffer_head *buf);
 
 int ldm_mem_alloc = 0;	/* Number of allocations */
@@ -187,7 +180,6 @@ unsigned char *read_dev_sector (struct block_device *bdev, unsigned long n, Sect
 		return NULL;
 
 	memset (pg, 0, sizeof (*pg));
-	//atomic_inc (&pg->count);
 	pg->count++;
 
 	bh = ldm_bread ((*((kdev_t*) (&bdev->bd_dev))), n, 512);
@@ -203,9 +195,7 @@ unsigned char *read_dev_sector (struct block_device *bdev, unsigned long n, Sect
 
 void __free_pages(struct page *page, unsigned int order)
 {
-	//atomic_dec (&page->count);
 	page->count--;
-	//if (atomic_read (&page->count) < 1) {
 	if (page->count < 1) {
 		if ((page->private) && (((struct buffer_head*)(page->private))->b_data))
 			kfree (((struct buffer_head*)(page->private))->b_data);
@@ -245,22 +235,9 @@ void put_dev_sector(Sector p)
 	printf ("NOTIMPL: %s\n", __func__);
 }
 
-struct hd_struct {
-	size_t nr_sects;
-};
-
-struct gendisk {
-	struct hd_struct part0;
-};
-
-size_t get_capacity(struct gendisk *disk)
-{
-	return disk->part0.nr_sects;
-}
-
 void *read_part_sector(struct parsed_partitions *state, size_t n, Sector *p)
 {
-	if (n >= get_capacity(state->bdev->bd_disk)) {
+	if (n >= state->rich_size) {
 		return NULL;
 	}
 	return read_dev_sector(state->bdev, n, p);
