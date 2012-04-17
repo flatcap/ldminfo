@@ -63,33 +63,8 @@ struct buffer_head {
 
 struct block_device {
 	dev_t			bd_dev;  /* not a kdev_t - it's a search key */
-	int			bd_openers;
 	struct inode *		bd_inode;	/* will die */
-	struct super_block *	bd_super;
-	struct list_head	bd_inodes;
-	void *			bd_claiming;
-	void *			bd_holder;
-	int			bd_holders;
-	bool			bd_write_holder;
-	struct block_device *	bd_contains;
-	unsigned		bd_block_size;
-	struct hd_struct *	bd_part;
-	/* number of times partitions within this device have been opened. */
-	unsigned		bd_part_count;
-	int			bd_invalidated;
 	struct gendisk *	bd_disk;
-	struct request_queue *  bd_queue;
-	struct list_head	bd_list;
-	/*
-	 * Private data.  You must have bd_claim'ed the block_device
-	 * to use this.  NOTE:  bd_claim allows an owner to claim
-	 * the same device multiple times, the owner must take special
-	 * care to not mess up bd_private for that case.
-	 */
-	unsigned long		bd_private;
-
-	/* The counter of freeze processes */
-	int			bd_fsfreeze_count;
 };
 
 typedef size_t sector_t;
@@ -101,7 +76,6 @@ struct parsed_partitions {
 		sector_t size;
 		int flags;
 	} parts[256];
-	bool access_beyond_eod;
 	char *pp_buf;
 	struct ldmdb *ldb;
 };
@@ -309,7 +283,6 @@ sector_t get_capacity(struct gendisk *disk)
 void *read_part_sector(struct parsed_partitions *state, sector_t n, Sector *p)
 {
 	if (n >= get_capacity(state->bdev->bd_disk)) {
-		state->access_beyond_eod = 1;
 		return NULL;
 	}
 	return read_dev_sector(state->bdev, n, p);

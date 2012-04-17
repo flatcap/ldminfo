@@ -60,14 +60,12 @@ typedef struct {struct page *v;} Sector;
 #define MSDOS_LABEL_MAGIC		0xAA55
 #define PAGE_SIZE			4096
 
-#define PARTITION_META_INFO_VOLNAMELTH	64
-#define PARTITION_META_INFO_UUIDLTH	16
-
 struct inode {
 	loff_t			i_size;
 };
 
 struct block_device {
+	dev_t			bd_dev;  /* not a kdev_t - it's a search key */
 	struct inode *		bd_inode;	/* will die */
 	struct gendisk *	bd_disk;
 };
@@ -81,7 +79,6 @@ struct parsed_partitions {
 		sector_t size;
 		int flags;
 	} parts[256];
-	bool access_beyond_eod;
 	char *pp_buf;
 	struct ldmdb *ldb;
 };
