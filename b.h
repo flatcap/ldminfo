@@ -11,7 +11,9 @@ typedef unsigned long long  u64;
 typedef short int           __le16;
 typedef int                 __le32;
 
-typedef int                 bool;
+typedef int bool;
+#define true  1
+#define false 0
 
 #define GFP_KERNEL	1
 #define kmalloc(X,Y)	__kmalloc(X,Y,__func__)
@@ -40,6 +42,20 @@ struct block_device {
 
 struct list_head {
 	struct list_head *next, *prev;
+};
+
+struct parsed_partitions {
+	struct block_device *bdev;
+	char name[32];
+	struct {
+		size_t from;
+		size_t size;
+		int flags;
+		bool has_info;
+	} parts[256];
+	int limit;
+	char *pp_buf;
+	struct ldmdb *ldb;
 };
 
 #endif // _B_H_

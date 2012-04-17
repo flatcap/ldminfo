@@ -25,9 +25,6 @@
 #define cpu_to_le64(s) bswap_64(s)
 #endif
 
-const bool true  = 1;
-const bool false = 0;
-
 #define BUG() do { \
 	printf("BUG: failure at %s:%d/%s()!\n", __FILE__, __LINE__, __func__); \
 	exit(1); \
@@ -52,19 +49,6 @@ typedef struct {struct page *v;} Sector;
 
 #define MSDOS_LABEL_MAGIC		0xAA55
 #define PAGE_SIZE			4096
-
-typedef size_t sector_t;
-struct parsed_partitions {
-	struct block_device *bdev;
-	char name[32];
-	struct {
-		sector_t from;
-		sector_t size;
-		int flags;
-	} parts[256];
-	char *pp_buf;
-	struct ldmdb *ldb;
-};
 
 struct partition {
 	unsigned char boot_ind;		/* 0x80 - active */
@@ -92,7 +76,7 @@ void __kfree (const void *objp, const char *fn);
 u64 get_unaligned_be64 (const u8 *ptr);
 u32 get_unaligned_be32 (const u8 *ptr);
 u16 get_unaligned_be16 (const u8 *ptr);
-void *read_part_sector(struct parsed_partitions *state, sector_t n, Sector *p);
+void *read_part_sector(struct parsed_partitions *state, size_t n, Sector *p);
 void put_dev_sector(Sector p);
 size_t strlcat(char *dest, const char *src, size_t count);
 void put_partition(struct parsed_partitions *pp, int part_num, long long a, long long b);

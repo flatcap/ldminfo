@@ -31,7 +31,6 @@
 #include <unistd.h>
 
 #include "ldminfo.h"
-#include "extra.h"
 #include "b.h"
 
 #define stat64 stat

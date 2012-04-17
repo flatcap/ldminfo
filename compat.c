@@ -42,14 +42,13 @@ struct page {
 typedef struct {struct page *v;} Sector;
 typedef size_t kdev_t;
 #define atomic_read(X)	(X)
-typedef size_t sector_t;
 
 struct buffer_head {
 	unsigned long b_state;		/* buffer state bitmap (see above) */
 	struct buffer_head *b_this_page;/* circular list of page's buffers */
 	struct page *b_page;		/* the page this bh is mapped to */
 
-	//sector_t b_blocknr;		/* start block number */
+	//size_t b_blocknr;		/* start block number */
 	size_t b_size;			/* size of mapping */
 	char *b_data;			/* pointer to data within the page */
 
@@ -60,19 +59,6 @@ struct buffer_head {
 	struct address_space *b_assoc_map;	/* mapping this buffer is
 						   associated with */
 	//atomic_t b_count;		/* users using this buffer_head */
-};
-
-typedef size_t sector_t;
-struct parsed_partitions {
-	struct block_device *bdev;
-	char name[32];
-	struct {
-		sector_t from;
-		sector_t size;
-		int flags;
-	} parts[256];
-	char *pp_buf;
-	struct ldmdb *ldb;
 };
 
 /* external dependencies */
@@ -260,19 +246,19 @@ void put_dev_sector(Sector p)
 }
 
 struct hd_struct {
-	sector_t nr_sects;
+	size_t nr_sects;
 };
 
 struct gendisk {
 	struct hd_struct part0;
 };
 
-sector_t get_capacity(struct gendisk *disk)
+size_t get_capacity(struct gendisk *disk)
 {
 	return disk->part0.nr_sects;
 }
 
-void *read_part_sector(struct parsed_partitions *state, sector_t n, Sector *p)
+void *read_part_sector(struct parsed_partitions *state, size_t n, Sector *p)
 {
 	if (n >= get_capacity(state->bdev->bd_disk)) {
 		return NULL;
