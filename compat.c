@@ -204,7 +204,7 @@ struct buffer_head * ldm_bread (kdev_t dev, int block, int size)
 
 		bh->b_data = kmalloc (size, 0);
 
-		if (lseek64 (device, offset, SEEK_SET) < 0)
+		if (lseek (device, offset, SEEK_SET) < 0)
 			printk (LDM_CRIT "lseek to %lld failed\n", offset);
 		else if (read (device, bh->b_data, size) < size)
 			printk (LDM_CRIT "read failed\n");

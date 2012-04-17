@@ -21,13 +21,15 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "ldminfo.h"
 
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <string.h>
+#include <libgen.h>
+
+#include "ldminfo.h"
 
 #define BUFSIZE_BITS	12
 #define BUFSIZE		(1 << BUFSIZE_BITS)
@@ -54,21 +56,21 @@ void copy_database (char *file, int device, long long size)
 		return;
 
 	sprintf ((char*) buffer, "%.58s.part", basename (file));
-	fpart = open64 ((char*)buffer, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+	fpart = open ((char*)buffer, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
 	if (fpart < 0) {
 		printf ("Couldn't open output file: %s\n", buffer);
 		goto out;
 	}
 
 	sprintf ((char*) buffer, "%.58s.data", basename (file));
-	fdata = open64 ((char*)buffer, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+	fdata = open ((char*)buffer, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
 	if (fdata < 0) {
 		printf ("Couldn't open output file: %s\n", buffer);
 		goto out;
 	}
 
 	/* First copy the partition table and primary PRIVHEAD to fpart */
-	if (lseek64 (device, 0, SEEK_SET) < 0) {
+	if (lseek (device, 0, SEEK_SET) < 0) {
 		printf ("lseek to %d failed\n", 0);
 		goto out;
 	}
@@ -93,7 +95,7 @@ void copy_database (char *file, int device, long long size)
 
 	size -= 1048576;	/* 1 MiB */
 
-	if (lseek64 (device, size, SEEK_SET) < 0) {
+	if (lseek (device, size, SEEK_SET) < 0) {
 		printf ("lseek to %lld failed\n", size);
 		goto out;
 	}

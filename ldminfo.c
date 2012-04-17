@@ -27,6 +27,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <ctype.h>
+#include <libgen.h>
 
 #include "ldminfo.h"
 #include "extra.h"
@@ -135,13 +136,13 @@ int main (int argc, char *argv[])
 			break;
 		}
 
-		device = open64 (argv[a], O_RDONLY);
+		device = open (argv[a], O_RDONLY);
 		if (device < 0) {
 			printf ("Couldn't open device (open): %s\n", argv[a]);
 			break;
 		}
 
-		size = lseek64 (device, 0, SEEK_END);
+		size = lseek (device, 0, SEEK_END);
 		if (size < 0) {
 			printf ("Seek failed for device: %s\n", argv[a]);
 			break;
