@@ -195,8 +195,8 @@ close:
 	if (device)
 		close (device);
 
-	printf ("%d/%d %d,%d\n", ldm_mem_alloc, ldm_mem_free, ldm_mem_maxa, ldm_mem_maxc);
+	if (ldm_mem_alloc != ldm_mem_free)
+		printf ("%d/%d %d,%d\n", ldm_mem_alloc, ldm_mem_free, ldm_mem_maxa, ldm_mem_maxc);
 	return 0;
 }
 
-// vim:fdl=2

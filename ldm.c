@@ -1537,7 +1537,7 @@ int ldm_partition(struct parsed_partitions *state)
 	/* Parse and check tocs and vmdb. */
 	if (!ldm_validate_tocblocks(state, base, ldb) ||
 	    !ldm_validate_vmdb(state, base, ldb))
-	    	goto out;		/* Already logged */
+		goto out;		/* Already logged */
 
 	/* Initialize vblk lists in ldmdb struct */
 	INIT_LIST_HEAD (&ldb->v_dgrp);
