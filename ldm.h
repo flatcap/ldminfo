@@ -1,4 +1,4 @@
-/**
+/*
  * ldm - Part of the Linux-NTFS project.
  *
  * Copyright (C) 2001-2012 Richard Russon <ldm@flatcap.org>

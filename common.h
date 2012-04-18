@@ -1,4 +1,5 @@
-/* Copyright (c) 2001-2012 Richard Russon (FlatCap)
+/*
+ * Copyright (c) 2001-2012 Richard Russon (FlatCap)
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -44,8 +45,6 @@ void   __kfree   (const void *objp, const char *fn);
 struct inode {
 	loff_t			i_size;
 };
-
-struct inode;
 
 struct block_device {
 	dev_t			bd_dev;

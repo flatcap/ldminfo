@@ -1,4 +1,4 @@
-/**
+/*
  * ldminfo - Part of the Linux-NTFS project.
  *
  * Copyright (C) 2001-2012 Richard Russon <ldm@flatcap.org>
@@ -187,10 +187,12 @@ void __list_add(struct list_head *new,
 	new->prev = prev;
 	prev->next = new;
 }
+
 void list_add_tail(struct list_head *new, struct list_head *head)
 {
 	__list_add(new, head->prev, head);
 }
+
 void list_add(struct list_head *new, struct list_head *head)
 {
 	__list_add(new, head, head->next);
@@ -201,5 +203,4 @@ void INIT_LIST_HEAD(struct list_head *list)
 	list->next = list;
 	list->prev = list;
 }
-// why two different inits?
 

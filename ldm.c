@@ -1,4 +1,4 @@
-/**
+/*
  * ldm - Support for Windows Logical Disk Manager (Dynamic Disks)
  *
  * Copyright (C) 2001-2012 Richard Russon <ldm@flatcap.org>
