@@ -1,2 +1,4 @@
 *.img
+*.img.data
+*.img.part
 ldminfo

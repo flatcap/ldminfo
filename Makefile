@@ -44,7 +44,7 @@ clean:
 	$(RM) $(OUT) $(OBJ)
 
 distclean: clean
-	$(RM) tags
+	$(RM) tags *.img.data *.img.part
 
 tags:	force
 	ctags *.[ch]

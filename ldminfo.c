@@ -120,6 +120,7 @@ int main (int argc, char *argv[])
 	for (a = 1; a < argc; a++) {
 		long long size;
 		struct parsed_partitions pp;
+		memset (&pp, 0, sizeof (pp));
 
 		if (!argv[a][0])
 			continue;
@@ -135,7 +136,7 @@ int main (int argc, char *argv[])
 		}
 
 		dev = open (argv[a], O_RDONLY);
-		if (dev< 0) {
+		if (dev < 0) {
 			printf ("Couldn't open device (open): %s\n", argv[a]);
 			break;
 		}
@@ -155,7 +156,6 @@ int main (int argc, char *argv[])
 		bdev.bd_inode = &ino;
 		ino.i_size = size;
 
-		memset (&pp, 0, sizeof (pp));
 		pp.parts[0].from = 0;
 		pp.parts[0].size = size >> 9;
 		pp.limit = 255;
@@ -192,7 +192,7 @@ close:
 	if (dev >= 0)
 		close (dev);
 
-	if (ldm_mem_alloc != ldm_mem_free)
+	if ((ldm_mem_alloc != ldm_mem_free) || debug)
 		printf ("%d/%d %d,%d\n", ldm_mem_alloc, ldm_mem_free, ldm_mem_maxa, ldm_mem_maxc);
 	return 0;
 }
