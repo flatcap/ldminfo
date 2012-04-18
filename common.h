@@ -15,6 +15,8 @@ typedef int bool;
 #define true  1
 #define false 0
 
+typedef struct {struct page *v;} Sector;
+
 #define GFP_KERNEL	1
 #define kmalloc(X,Y)	__kmalloc(X,Y,__func__)
 #define kfree(X)	__kfree(X,__func__)

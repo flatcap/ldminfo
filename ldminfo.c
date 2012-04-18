@@ -165,7 +165,7 @@ int main (int argc, char *argv[])
 		pp.limit = 255;
 		pp.bdev = &bdev;
 		pp.rich_size = size;
-		pp.pp_buf = malloc (256);
+		pp.pp_buf = kmalloc (256, GFP_KERNEL);
 
 		if (ldm_partition (&pp) != 1) {
 			printf ("Something went wrong, skipping device '%s'\n", argv[a]);
@@ -189,7 +189,7 @@ free:
 close:
 		close (device);
 		device = 0;
-		free (pp.pp_buf);
+		kfree (pp.pp_buf);
 	}
 
 	if (device)

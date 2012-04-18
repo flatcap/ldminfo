@@ -35,32 +35,23 @@
 int device = 0;
 int debug  = 0;
 
-struct page {
-	int count;
-	unsigned long private;
-};
-typedef struct {struct page *v;} Sector;
-typedef size_t kdev_t;
-
 struct buffer_head {
 	unsigned long b_state;		/* buffer state bitmap (see above) */
 	struct buffer_head *b_this_page;/* circular list of page's buffers */
 	struct page *b_page;		/* the page this bh is mapped to */
-
-	//size_t b_blocknr;		/* start block number */
 	size_t b_size;			/* size of mapping */
 	char *b_data;			/* pointer to data within the page */
-
 	struct block_device *b_bdev;
-	//bh_end_io_t *b_end_io;		/* I/O completion */
 	void *b_private;		/* reserved for b_end_io */
 	struct list_head b_assoc_buffers; /* associated with another mapping */
-	struct address_space *b_assoc_map;	/* mapping this buffer is
-						   associated with */
+	struct address_space *b_assoc_map;
 };
 
-/* general kernel functions */
-void __brelse (struct buffer_head *buf);
+struct page {
+	int count;
+	struct buffer_head *bh;
+};
+typedef size_t kdev_t;
 
 int ldm_mem_alloc = 0;	/* Number of allocations */
 int ldm_mem_free  = 0;	/* Number of frees */
@@ -73,7 +64,9 @@ int ldm_mem_maxc  = 0;	/* Max memory blocks */
 
 void put_page (struct page *p)
 {
-	printf ("NOTIMPL: %s\n", __func__);
+	kfree (p->bh->b_data);
+	kfree (p->bh);
+	kfree (p);
 }
 
 void * __kmalloc (size_t size, int flags, const char *fn)
@@ -91,7 +84,7 @@ void * __kmalloc (size_t size, int flags, const char *fn)
 
 void __kfree (const void *objp, const char *fn)
 {
-	//printf ("free   %p        in %s\n", objp, fn);
+	//printf ("free   %p        in %s\n", objp - sizeof (int), fn);
 	if (!objp)
 		return;
 	ldm_mem_free++;
@@ -130,14 +123,6 @@ int printk (const char *fmt, ...)
 		printf ("%s", buf);
 
 	return 0;
-}
-
-void __brelse (struct buffer_head * buf)
-{
-	if (buf) {
-		kfree (buf->b_data);
-		kfree (buf);
-	}
 }
 
 struct buffer_head * ldm_bread (kdev_t dev, int block, int size)
@@ -189,33 +174,10 @@ unsigned char *read_dev_sector (struct block_device *bdev, unsigned long n, Sect
 	}
 
 	sect->v = pg;
-	pg->private = (unsigned long) bh;
+	pg->bh = bh;
 	return (unsigned char *) bh->b_data;
 }
 
-void __free_pages(struct page *page, unsigned int order)
-{
-	page->count--;
-	if (page->count < 1) {
-		if ((page->private) && (((struct buffer_head*)(page->private))->b_data))
-			kfree (((struct buffer_head*)(page->private))->b_data);
-		if (page->private);
-			kfree ((void*)(page->private));
-		kfree (page);
-	}
-}
-
-void page_cache_release (struct page *page)
-{
-	__free_pages (page, 0);
-}
-
-void __free_page (struct page *page)
-{
-	__free_pages((page), 0);
-}
-
-#if 0
 void put_partition(struct parsed_partitions *p, int n, int from, int size)
 {
 	if (n < p->limit) {
@@ -223,27 +185,14 @@ void put_partition(struct parsed_partitions *p, int n, int from, int size)
 		p->parts[n].size = size;
 	}
 }
-#endif
-
-void put_partition(struct parsed_partitions *pp, int part_num, long long a, long long b)
-{
-	static int c = 0;
-	if (!c) {
-		printf ("NOTIMPL: %s\n", __func__);
-		c++;
-	}
-}
 
 void put_dev_sector(Sector p)
 {
-	static int c = 0;
-	if (!c) {
-		printf ("NOTIMPL: %s\n", __func__);
-		c++;
-	}
+	put_page (p.v);
+	p.v = NULL;
 }
 
-void *read_part_sector(struct parsed_partitions *state, size_t n, Sector *p)
+void * read_part_sector(struct parsed_partitions *state, size_t n, Sector *p)
 {
 	if (n >= state->rich_size) {
 		return NULL;
@@ -261,21 +210,14 @@ int hex_to_bin(char ch)
 	return -1;
 }
 
-#define BUG() do { \
-	printf("BUG: failure at %s:%d/%s()!\n", __FILE__, __LINE__, __func__); \
-	exit(1); \
-} while (0)
-
-#define BUG_ON(condition) do { if (condition) BUG(); } while(0)
-
 size_t strlcat(char *dest, const char *src, size_t count)
 {
 	size_t dsize = strlen(dest);
 	size_t len = strlen(src);
 	size_t res = dsize + len;
 
-	/* This would be a bug */
-	BUG_ON(dsize >= count);
+	if (!dest)
+		return -1;
 
 	dest += dsize;
 	count -= dsize;
@@ -302,8 +244,8 @@ u16 get_unaligned_be16 (const u8 *ptr)
 }
 
 void __list_add(struct list_head *new,
-			      struct list_head *prev,
-			      struct list_head *next)
+		struct list_head *prev,
+		struct list_head *next)
 {
 	next->prev = new;
 	new->next = next;
