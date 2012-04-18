@@ -23,9 +23,6 @@
  * Boston, MA  02111-1307  USA
  */
 
-
-#include "ldm_req.h"
-
 #include <linux/slab.h>
 #include <linux/pagemap.h>
 #include <linux/stringify.h>
@@ -200,18 +197,18 @@ static bool ldm_parse_tocblock (const u8 *data, struct tocblock *toc)
 		ldm_crit ("Cannot find TOCBLOCK, database may be corrupt.");
 		return false;
 	}
-	strncpy ((char*)toc->bitmap1_name, (char*)(data + 0x24), sizeof(toc->bitmap1_name));
-	toc->bitmap1_name[sizeof(toc->bitmap1_name) - 1] = 0;
+	strncpy ((char*)toc->bitmap1_name, (char*)(data + 0x24), sizeof (toc->bitmap1_name));
+	toc->bitmap1_name[sizeof (toc->bitmap1_name) - 1] = 0;
 	toc->bitmap1_start = get_unaligned_be64(data + 0x2E);
 	toc->bitmap1_size  = get_unaligned_be64(data + 0x36);
 
 	if (strncmp ((char*)toc->bitmap1_name, TOC_BITMAP1,
-			sizeof(toc->bitmap1_name)) != 0) {
-		ldm_crit("TOCBLOCK's first bitmap is '%s', should be '%s'.",
+			sizeof (toc->bitmap1_name)) != 0) {
+		ldm_crit ("TOCBLOCK's first bitmap is '%s', should be '%s'.",
 				TOC_BITMAP1, toc->bitmap1_name);
 		return false;
 	}
-	strncpy ((char*)toc->bitmap2_name, (char*)(data + 0x46), sizeof(toc->bitmap2_name));
+	strncpy ((char*)toc->bitmap2_name, (char*)(data + 0x46), sizeof (toc->bitmap2_name));
 	toc->bitmap2_name[sizeof (toc->bitmap2_name) - 1] = 0;
 	toc->bitmap2_start = get_unaligned_be64(data + 0x50);
 	toc->bitmap2_size  = get_unaligned_be64(data + 0x58);
@@ -1481,7 +1478,7 @@ out:
  *
  * Return:  none
  */
-void ldm_free_vblks (struct list_head *lh)
+static void ldm_free_vblks (struct list_head *lh)
 {
 	struct list_head *item, *tmp;
 

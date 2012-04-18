@@ -16,7 +16,6 @@ CFLAGS	= -Wall -g
 CFLAGS += -D_FILE_OFFSET_BITS=64
 CFLAGS += -I.
 CFLAGS += -Ilinux
-#CFLAGS += -include extra.h
 #CFLAGS += -I$(KERNEL)/include
 #CFLAGS += -I$(KERNEL)/fs/partitions
 
@@ -33,6 +32,10 @@ all:	$(OUT)
 
 .c.o:
 	$(CC) $(CFLAGS) -c $< -o $@
+
+ldm.o:
+	# strip the statics and forceably include ldm_req.h
+	$(CC) $(CFLAGS) -Dstatic="" -include ldm_req.h -c ldm.c -o $@
 
 ldminfo: $(INFODEP)
 	$(CC) -o ldminfo $(INFODEP)
