@@ -35,21 +35,8 @@
 int device = 0;
 int debug  = 0;
 
-struct buffer_head {
-	unsigned long b_state;		/* buffer state bitmap (see above) */
-	struct buffer_head *b_this_page;/* circular list of page's buffers */
-	struct page *b_page;		/* the page this bh is mapped to */
-	size_t b_size;			/* size of mapping */
-	char *b_data;			/* pointer to data within the page */
-	struct block_device *b_bdev;
-	void *b_private;		/* reserved for b_end_io */
-	struct list_head b_assoc_buffers; /* associated with another mapping */
-	struct address_space *b_assoc_map;
-};
-
 struct page {
-	int count;
-	struct buffer_head *bh;
+	u8 *data;
 };
 typedef size_t kdev_t;
 
@@ -64,8 +51,7 @@ int ldm_mem_maxc  = 0;	/* Max memory blocks */
 
 void put_page (struct page *p)
 {
-	kfree (p->bh->b_data);
-	kfree (p->bh);
+	kfree (p->data);
 	kfree (p);
 }
 
@@ -125,59 +111,6 @@ int printk (const char *fmt, ...)
 	return 0;
 }
 
-struct buffer_head * ldm_bread (kdev_t dev, int block, int size)
-{
-	struct buffer_head *bh;
-	long long offset;
-
-	offset = (((long long) block) * size);
-
-	bh = kmalloc (sizeof (*bh), 0);
-	if (bh) {
-		memset (bh, 0, sizeof (*bh));
-
-		bh->b_data = kmalloc (size, 0);
-
-		if (lseek (device, offset, SEEK_SET) < 0)
-			printk ("[CRIT] lseek to %lld failed\n", offset);
-		else if (read (device, bh->b_data, size) < size)
-			printk ("[CRIT] read failed\n");
-		else
-			goto bread_end;
-
-		kfree (bh);
-		bh = NULL;
-	}
-bread_end:
-	return bh;
-}
-
-unsigned char *read_dev_sector (struct block_device *bdev, unsigned long n, Sector *sect)
-{
-	struct page        *pg = NULL;
-	struct buffer_head *bh = NULL;
-
-	if (!bdev || !sect)
-		return NULL;
-
-	pg = (struct page *) kmalloc (sizeof (*pg), 0);
-	if (!pg)
-		return NULL;
-
-	memset (pg, 0, sizeof (*pg));
-	pg->count++;
-
-	bh = ldm_bread ((*((kdev_t*) (&bdev->bd_dev))), n, 512);
-	if (!bh) {
-		put_page (pg);
-		return NULL;
-	}
-
-	sect->v = pg;
-	pg->bh = bh;
-	return (unsigned char *) bh->b_data;
-}
-
 void put_partition(struct parsed_partitions *p, int n, int from, int size)
 {
 	if (n < p->limit) {
@@ -192,12 +125,31 @@ void put_dev_sector(Sector p)
 	p.v = NULL;
 }
 
-void * read_part_sector(struct parsed_partitions *state, size_t n, Sector *p)
+void * read_part_sector(struct parsed_partitions *state, size_t n, Sector *sect)
 {
-	if (n >= state->rich_size) {
+	if (n >= state->size)
 		return NULL;
+
+	struct page *pg = NULL;
+	int size = 512;
+	n *= size;
+
+	pg = kmalloc (sizeof (*pg), 0);
+	if (!pg)
+		return NULL;
+
+	memset (pg, 0, sizeof (*pg));
+
+	pg->data = kmalloc (size, 0);
+
+	if (lseek (device, n, SEEK_SET) < 0) {
+		printk ("[CRIT] lseek to %lld failed\n", n);
+	} else if (read (device, pg->data, size) < size) {
+		printk ("[CRIT] read failed\n");
 	}
-	return read_dev_sector(state->bdev, n, p);
+
+	sect->v = pg;
+	return pg->data;
 }
 
 int hex_to_bin(char ch)

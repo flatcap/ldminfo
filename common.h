@@ -73,7 +73,7 @@ struct parsed_partitions {
 	int limit;
 	char *pp_buf;
 	struct ldmdb *ldb;
-	size_t rich_size;
+	size_t size;
 };
 
 #endif // _COMMON_H_

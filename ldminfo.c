@@ -164,8 +164,8 @@ int main (int argc, char *argv[])
 		pp.parts[0].size = size >> 9;
 		pp.limit = 255;
 		pp.bdev = &bdev;
-		pp.rich_size = size;
-		pp.pp_buf = kmalloc (256, GFP_KERNEL);
+		pp.size = size;
+		pp.pp_buf = kmalloc (256, 0);
 
 		if (ldm_partition (&pp) != 1) {
 			printf ("Something went wrong, skipping device '%s'\n", argv[a]);
