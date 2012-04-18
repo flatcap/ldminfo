@@ -1,11 +1,11 @@
 /**
  * ldm - Support for Windows Logical Disk Manager (Dynamic Disks)
  *
- * Copyright (C) 2001,2002 Richard Russon <ldm@flatcap.org>
+ * Copyright (C) 2001-2012 Richard Russon <ldm@flatcap.org>
  * Copyright (c) 2001-2012 Anton Altaparmakov
  * Copyright (C) 2001,2002 Jakob Kemi <jakob.kemi@telia.com>
  *
- * Documentation is available at http://www.linux-ntfs.org/doku.php?id=downloads 
+ * Documentation is available at http://www.linux-ntfs.org/doku.php?id=downloads
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software

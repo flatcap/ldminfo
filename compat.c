@@ -1,7 +1,7 @@
 /**
  * ldminfo - Part of the Linux-NTFS project.
  *
- * Copyright (C) 2001 Richard Russon <ldm@flatcap.org>
+ * Copyright (C) 2001-2012 Richard Russon <ldm@flatcap.org>
  *
  * Documentation is available at http://linux-ntfs.sourceforge.net/ldm
  *
