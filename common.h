@@ -60,6 +60,8 @@ struct list_head {
 	struct list_head *next, *prev;
 };
 
+void INIT_LIST_HEAD(struct list_head *list);
+
 struct parsed_partitions {
 	struct block_device *bdev;
 	char name[32];
@@ -73,6 +75,7 @@ struct parsed_partitions {
 	char *pp_buf;
 	struct ldmdb *ldb;
 	size_t size;
+	int device;
 };
 
 #endif // _COMMON_H_

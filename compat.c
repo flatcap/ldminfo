@@ -32,10 +32,7 @@
 #include "ldminfo.h"
 #include "common.h"
 
-int device = 0;
-int debug  = 0;
-
-typedef size_t kdev_t;
+int debug = 0;
 
 int ldm_mem_alloc = 0;	/* Number of allocations */
 int ldm_mem_free  = 0;	/* Number of frees */
@@ -144,9 +141,9 @@ void * read_part_sector(struct parsed_partitions *state, size_t n, Sector *sect)
 
 	sect->data = kmalloc (size, 0);
 
-	if (lseek (device, n, SEEK_SET) < 0) {
+	if (lseek (state->device, n, SEEK_SET) < 0) {
 		printk ("[CRIT] lseek to %lld failed\n", n);
-	} else if (read (device, sect->data, size) < size) {
+	} else if (read (state->device, sect->data, size) < size) {
 		printk ("[CRIT] read failed\n");
 	}
 

@@ -37,11 +37,6 @@
 #define stat64 stat
 void ldm_free_vblks(struct list_head *lh);
 
-static inline void INIT_LIST_HEAD(struct list_head *list)
-{
-	list->next = list;
-	list->prev = list;
-}
 /**
  * dump_info - Display a list of partitions, a la fdisk
  */
@@ -84,11 +79,12 @@ void dump_info (char *name, struct parsed_partitions *pp)
 int main (int argc, char *argv[])
 {
 	int a;
-	int info  = 0;
-	int dump  = 0;
-	int copy  = 0;
-	int help  = 0;
-	int ver   = 0;
+	int info = 0;
+	int dump = 0;
+	int copy = 0;
+	int help = 0;
+	int ver  = 0;
+	int dev  = -1;
 	struct block_device bdev;
 	struct inode ino;
 	struct stat64 st;
@@ -138,20 +134,20 @@ int main (int argc, char *argv[])
 			break;
 		}
 
-		device = open (argv[a], O_RDONLY);
-		if (device < 0) {
+		dev = open (argv[a], O_RDONLY);
+		if (dev< 0) {
 			printf ("Couldn't open device (open): %s\n", argv[a]);
 			break;
 		}
 
-		size = lseek (device, 0, SEEK_END);
+		size = lseek (dev, 0, SEEK_END);
 		if (size < 0) {
 			printf ("Seek failed for device: %s\n", argv[a]);
 			break;
 		}
 
 		if (copy) {
-			copy_database (argv[a], device, size);
+			copy_database (argv[a], dev, size);
 			goto close;
 		}
 
@@ -166,6 +162,7 @@ int main (int argc, char *argv[])
 		pp.bdev = &bdev;
 		pp.size = size;
 		pp.pp_buf = kmalloc (256, 0);
+		pp.device = dev;
 
 		if (ldm_partition (&pp) != 1) {
 			printf ("Something went wrong, skipping device '%s'\n", argv[a]);
@@ -187,13 +184,13 @@ free:
 			kfree (pp.ldb);
 		}
 close:
-		close (device);
-		device = 0;
+		close (dev);
+		dev = -1;
 		kfree (pp.pp_buf);
 	}
 
-	if (device)
-		close (device);
+	if (dev >= 0)
+		close (dev);
 
 	if (ldm_mem_alloc != ldm_mem_free)
 		printf ("%d/%d %d,%d\n", ldm_mem_alloc, ldm_mem_free, ldm_mem_maxa, ldm_mem_maxc);

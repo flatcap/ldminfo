@@ -97,7 +97,6 @@ size_t strlcat(char *dest, const char *src, size_t count);
 void put_partition(struct parsed_partitions *pp, int part_num, long long a, long long b);
 void list_add(struct list_head *new, struct list_head *head);
 void list_add_tail(struct list_head *new, struct list_head *head);
-void INIT_LIST_HEAD(struct list_head *list);
 
 #endif // _LDM_REQ_H_
 

@@ -24,7 +24,6 @@
 
 struct list_head;
 
-extern int device;
 extern int debug;
 
 extern int ldm_mem_alloc;
