@@ -35,9 +35,6 @@
 int device = 0;
 int debug  = 0;
 
-struct page {
-	u8 *data;
-};
 typedef size_t kdev_t;
 
 int ldm_mem_alloc = 0;	/* Number of allocations */
@@ -48,12 +45,6 @@ int ldm_mem_count = 0;	/* Number of memory blocks */
 int ldm_mem_maxc  = 0;	/* Max memory blocks */
 
 #define max(a, b)  (((a) > (b)) ? (a) : (b))
-
-void put_page (struct page *p)
-{
-	kfree (p->data);
-	kfree (p);
-}
 
 void * __kmalloc (size_t size, int flags, const char *fn)
 {
@@ -121,8 +112,8 @@ void put_partition(struct parsed_partitions *p, int n, int from, int size)
 
 void put_dev_sector(Sector p)
 {
-	put_page (p.v);
-	p.v = NULL;
+	kfree (p.data);
+	p.data = NULL;
 }
 
 void * read_part_sector(struct parsed_partitions *state, size_t n, Sector *sect)
@@ -130,26 +121,18 @@ void * read_part_sector(struct parsed_partitions *state, size_t n, Sector *sect)
 	if (n >= state->size)
 		return NULL;
 
-	struct page *pg = NULL;
 	int size = 512;
 	n *= size;
 
-	pg = kmalloc (sizeof (*pg), 0);
-	if (!pg)
-		return NULL;
-
-	memset (pg, 0, sizeof (*pg));
-
-	pg->data = kmalloc (size, 0);
+	sect->data = kmalloc (size, 0);
 
 	if (lseek (device, n, SEEK_SET) < 0) {
 		printk ("[CRIT] lseek to %lld failed\n", n);
-	} else if (read (device, pg->data, size) < size) {
+	} else if (read (device, sect->data, size) < size) {
 		printk ("[CRIT] read failed\n");
 	}
 
-	sect->v = pg;
-	return pg->data;
+	return sect->data;
 }
 
 int hex_to_bin(char ch)
