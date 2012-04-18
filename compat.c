@@ -46,6 +46,9 @@ int ldm_mem_maxc  = 0;	/* Max memory blocks */
 
 #define max(a, b)  (((a) > (b)) ? (a) : (b))
 
+/**
+ * __kmalloc
+ */
 void * __kmalloc (size_t size, int flags, const char *fn)
 {
 	void *ptr = malloc (size + sizeof (int));
@@ -59,6 +62,9 @@ void * __kmalloc (size_t size, int flags, const char *fn)
 	return (ptr + sizeof (int));
 }
 
+/**
+ * __kfree
+ */
 void __kfree (const void *objp, const char *fn)
 {
 	//printf ("free   %p        in %s\n", objp - sizeof (int), fn);
@@ -70,6 +76,9 @@ void __kfree (const void *objp, const char *fn)
 	free ((void *)(objp - sizeof (int)));
 }
 
+/**
+ * printk
+ */
 int printk (const char *fmt, ...)
 {
 	static int ignore;
@@ -102,6 +111,9 @@ int printk (const char *fmt, ...)
 	return 0;
 }
 
+/**
+ * put_partition
+ */
 void put_partition(struct parsed_partitions *p, int n, int from, int size)
 {
 	if (n < p->limit) {
@@ -110,12 +122,18 @@ void put_partition(struct parsed_partitions *p, int n, int from, int size)
 	}
 }
 
+/**
+ * put_dev_sector
+ */
 void put_dev_sector(Sector p)
 {
 	kfree (p.data);
 	p.data = NULL;
 }
 
+/**
+ * read_part_sector
+ */
 void * read_part_sector(struct parsed_partitions *state, size_t n, Sector *sect)
 {
 	if (n >= state->size)
@@ -135,6 +153,9 @@ void * read_part_sector(struct parsed_partitions *state, size_t n, Sector *sect)
 	return sect->data;
 }
 
+/**
+ * hex_to_bin
+ */
 int hex_to_bin(char ch)
 {
 	if ((ch >= '0') && (ch <= '9'))
@@ -145,6 +166,9 @@ int hex_to_bin(char ch)
 	return -1;
 }
 
+/**
+ * strlcat
+ */
 size_t strlcat(char *dest, const char *src, size_t count)
 {
 	size_t dsize = strlen(dest);
@@ -163,22 +187,34 @@ size_t strlcat(char *dest, const char *src, size_t count)
 	return res;
 }
 
+/**
+ * get_unaligned_be64
+ */
 u64 get_unaligned_be64 (const u8 *ptr)
 {
 	return be64toh(*(u64*)ptr);
 }
 
+/**
+ * get_unaligned_be32
+ */
 u32 get_unaligned_be32 (const u8 *ptr)
 {
 	return be32toh(*(u32*)ptr);
 }
 
+/**
+ * get_unaligned_be16
+ */
 u16 get_unaligned_be16 (const u8 *ptr)
 {
 	return be16toh(*(u16*)ptr);
 }
 
-void __list_add(struct list_head *new,
+/**
+ * __list_add
+ */
+static void __list_add(struct list_head *new,
 		struct list_head *prev,
 		struct list_head *next)
 {
@@ -188,16 +224,25 @@ void __list_add(struct list_head *new,
 	prev->next = new;
 }
 
+/**
+ * list_add_tail
+ */
 void list_add_tail(struct list_head *new, struct list_head *head)
 {
 	__list_add(new, head->prev, head);
 }
 
+/**
+ * list_add
+ */
 void list_add(struct list_head *new, struct list_head *head)
 {
 	__list_add(new, head, head->next);
 }
 
+/**
+ * INIT_LIST_HEAD
+ */
 void INIT_LIST_HEAD(struct list_head *list)
 {
 	list->next = list;
