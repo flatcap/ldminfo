@@ -120,6 +120,25 @@ static bool ldm_parse_guid (const u8 *src, u8 *dest)
 }
 
 /**
+ * ldm_validate_privhead
+ */
+bool ldm_validate_privhead (const u8 *data)
+{
+	int i = 0;
+	int checksum = 0;
+
+	for (i = 0; i < 512; i++) {
+		checksum += data[i];
+		if (i == 7)
+			i += 2;
+	}
+
+	ldm_info ("checksum = 0x%4x, 0x%4x", checksum, get_unaligned_be32 (data+8));
+
+	return true;
+}
+
+/**
  * ldm_parse_privhead - Read the LDM Database PRIVHEAD structure
  * @data:  Raw database PRIVHEAD structure loaded from the device
  * @ph:    In-memory privhead structure in which to return parsed information
@@ -140,6 +159,10 @@ static bool ldm_parse_privhead(const u8 *data, struct privhead *ph)
 			" corrupt. Aborting.");
 		return false;
 	}
+
+	if (!ldm_validate_privhead (data))
+		return false;
+
 	ph->ver_major = get_unaligned_be16(data + 0x000C);
 	ph->ver_minor = get_unaligned_be16(data + 0x000E);
 	ph->logical_disk_start = get_unaligned_be64(data + 0x011B);
