@@ -78,33 +78,40 @@ void __kfree (const void *objp, const char *fn)
  */
 int printk (const char *fmt, ...)
 {
-	static int ignore;
+	// printk only gets called from one place, in one manner:
+	// printk("%s%s(): %pV\n", level, function, &vaf);
+
 	char buf[1024];
 	va_list args;
 
 	va_start (args, fmt);
-	vsnprintf (buf, sizeof (buf), fmt, args);
-	va_end (args);
 
-	if ((!debug) && (!strcmp (buf, " [LDM]")))
+	const char *level     = va_arg (args, char *);
+	const char *func      = va_arg (args, char *);
+	struct va_format *vaf = va_arg (args, struct va_format *);
+
+	if ((strcmp (level, "<7>") == 0) && (!debug))
 		return 0;
 
-	if ((!debug) && (buf[0] == ' ') && isdigit(buf[1]))
-		return 0;
-
-	if (ignore) {
-		ignore = (strchr (buf, '\n') == NULL);
-		return 0;
+	switch (level[1]) {
+		case '0': level = "[EMERG]";   break;
+		case '1': level = "[ALERT]";   break;
+		case '2': level = "[CRIT]";    break;
+		case '3': level = "[ERR]";     break;
+		case '4': level = "[WARNING]"; break;
+		case '5': level = "[NOTICE]";  break;
+		case '6': level = "[INFO]";    break;
+		default:  level = "[DEBUG]";   break;
 	}
 
-	if ((buf[0] == '<') && (buf[2] == '>'))
-		if (debug || buf[1] != '7')
-			printf ("%s", buf+3);
-		else
-			ignore = (strchr (buf, '\n') == NULL);
-	else
-		printf ("%s", buf);
+	va_list subargs;
+	va_copy(subargs, *vaf->va);
+	vsnprintf (buf, sizeof (buf), vaf->fmt, subargs);
+	va_end (subargs);
 
+	printf ("%s %s: %s\n", level, func, buf);
+
+	va_end (args);
 	return 0;
 }
 
@@ -142,9 +149,9 @@ void * read_part_sector(struct parsed_partitions *state, size_t n, Sector *sect)
 	sect->data = kmalloc (size, 0);
 
 	if (lseek (state->device, n, SEEK_SET) < 0) {
-		printk ("[CRIT] lseek to %lld failed\n", n);
+		printf ("lseek to %ld failed\n", n);
 	} else if (read (state->device, sect->data, size) < size) {
-		printk ("[CRIT] read failed\n");
+		printf ("read failed\n");
 	}
 
 	return sect->data;

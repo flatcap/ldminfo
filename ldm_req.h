@@ -78,11 +78,6 @@ struct partition {
 	__le32 nr_sects;		/* nr of sectors in partition */
 } __attribute__((packed));
 
-struct va_format {
-	const char *fmt;
-	va_list *va;
-};
-
 int printk (const char *format, ...);
 unsigned char *read_dev_sector (struct block_device *bdev, unsigned long n, Sector *sect);
 int hex_to_bin(char ch);

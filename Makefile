@@ -33,9 +33,9 @@ all:	$(OUT)
 .c.o:
 	$(CC) $(CFLAGS) -c $< -o $@
 
+# strip the statics and forceably include ldm_req.h
 ldm.o:
-	# strip the statics and forceably include ldm_req.h
-	$(CC) $(CFLAGS) -Dstatic="" -include ldm_req.h -c ldm.c -o $@
+	$(CC) $(CFLAGS) -DCONFIG_LDM_DEBUG -Dstatic="" -include ldm_req.h -c ldm.c -o $@
 
 ldminfo: $(INFODEP)
 	$(CC) -o ldminfo $(INFODEP)

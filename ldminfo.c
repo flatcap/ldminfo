@@ -38,7 +38,7 @@
 void ldm_free_vblks(struct list_head *lh);
 
 /**
- * dump_info - Display a list of partitions, a la fdisk
+ * dump_info - Display a list of partitions, like fdisk
  */
 void dump_info (char *name, struct parsed_partitions *pp)
 {
