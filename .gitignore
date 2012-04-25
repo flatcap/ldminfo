@@ -1,2 +1,4 @@
 *.img*
 ldminfo
+.obj
+.dep
