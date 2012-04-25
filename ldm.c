@@ -119,24 +119,26 @@ static bool ldm_parse_guid (const u8 *src, u8 *dest)
 	return true;
 }
 
+
 /**
- * ldm_validate_privhead
+ * ldm_checksum
  */
-bool ldm_validate_privhead (const u8 *data)
+static bool ldm_checksum (const u8 *data, int size, int checkoff, int checksize)
 {
 	int i = 0;
 	int checksum = 0;
 
-	for (i = 0; i < 512; i++) {
+	for (i = 0; i < size; i++) {
 		checksum += data[i];
-		if (i == 7)
-			i += 2;
+		if (i == checkoff)
+			i += checksize;
 	}
 
-	ldm_info ("checksum = 0x%4x, 0x%4x", checksum, get_unaligned_be32 (data+8));
+	ldm_debug ("checksum = 0x%04x, 0x%04x", checksum, get_unaligned_be32 (data+8));
 
-	return true;
+	return (checksum == get_unaligned_be32 (data+8));
 }
+
 
 /**
  * ldm_parse_privhead - Read the LDM Database PRIVHEAD structure
@@ -160,8 +162,10 @@ static bool ldm_parse_privhead(const u8 *data, struct privhead *ph)
 		return false;
 	}
 
-	if (!ldm_validate_privhead (data))
+	if (!ldm_checksum (data, 512, 8, 4)) {
+		ldm_error ("PRIVHEAD checksum doesn't match\n");
 		return false;
+	}
 
 	ph->ver_major = get_unaligned_be16(data + 0x000C);
 	ph->ver_minor = get_unaligned_be16(data + 0x000E);
@@ -220,6 +224,12 @@ static bool ldm_parse_tocblock (const u8 *data, struct tocblock *toc)
 		ldm_crit ("Cannot find TOCBLOCK, database may be corrupt.");
 		return false;
 	}
+
+	if (!ldm_checksum (data, 512, 8, 4)) {
+		ldm_error ("TOCBLOCK checksum doesn't match\n");
+		return false;
+	}
+
 	strncpy ((char*)toc->bitmap1_name, (char*)(data + 0x24), sizeof (toc->bitmap1_name));
 	toc->bitmap1_name[sizeof (toc->bitmap1_name) - 1] = 0;
 	toc->bitmap1_start = get_unaligned_be64(data + 0x2E);
