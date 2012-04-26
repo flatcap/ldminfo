@@ -140,6 +140,57 @@ static bool ldm_checksum (const u8 *data, int size, int checkoff, int checksize)
 }
 
 
+#include <time.h>
+
+/**
+ * ldm_get_date
+ */
+char * ldm_get_date (const u8 *data)
+{
+	u64 ldmtime = be64toh (*(u64*)data);
+	time_t t = (ldmtime - 116444736000000000LL) / 10000000;
+	return ctime (&t);
+}
+
+/**
+ * ldm_dump_privhead
+ */
+void ldm_dump_privhead (const u8 *data)
+{
+	printf ("PRIVHEAD\n");
+	printf ("\tSignature:                %.8s\n",                       data + 0x000);
+	printf ("\tChecksum:                 0x%04x\n", get_unaligned_be32 (data + 0x008));
+	printf ("\tVersion Major:            %d\n",     get_unaligned_be16 (data + 0x00C));
+	printf ("\tVersion Minor:            %d\n",     get_unaligned_be16 (data + 0x00E));
+	printf ("\tLast Update:              %s",       ldm_get_date       (data + 0x010));
+	printf ("\tUpdate Seq Num:           %lld\n",   get_unaligned_be64 (data + 0x018));
+	printf ("\t1st Privhead LBA:         0x%llx\n", get_unaligned_be64 (data + 0x020));
+	printf ("\t2nd Privhead LBA:         0x%llx\n", get_unaligned_be64 (data + 0x028));
+	printf ("\tDisk GUID:                %.64s\n",                      data + 0x030);
+	printf ("\tHost GUID:                %.64s\n",                      data + 0x070);
+	printf ("\tDisk Group GUID:          %.64s\n",                      data + 0x0B0);
+	printf ("\tDisk Group Name:          %.31s\n",                      data + 0x0F0);
+	printf ("\tBytes/Sector:             %d\n",     get_unaligned_be32 (data + 0x10F));
+	printf ("\tFlags:                    0x%04x\n", get_unaligned_be32 (data + 0x113));	//XXX
+	printf ("\tPublic  Region Slice Num: %d\n",     get_unaligned_be16 (data + 0x117));
+	printf ("\tPrivate Region Slice Num: %d\n",     get_unaligned_be16 (data + 0x119));
+	printf ("\tPublic  Region Start LBA: 0x%llx\n", get_unaligned_be64 (data + 0x11B));
+	printf ("\tPublic  Region Size  LBA: 0x%llx\n", get_unaligned_be64 (data + 0x123));
+	printf ("\tPrivate Region Start LBA: 0x%llx\n", get_unaligned_be64 (data + 0x12B));
+	printf ("\tPrivate Region Size  LBA: 0x%llx\n", get_unaligned_be64 (data + 0x133));
+	printf ("\t1st TOCBLOCK LBA (rel):   0x%llx\n", get_unaligned_be64 (data + 0x13B));	//XXX relative to private region
+	printf ("\t2nd TOCBLOCK LBA (rel):   0x%llx\n", get_unaligned_be64 (data + 0x143));	//XXX relative to private region
+	printf ("\tNumber of Configs:        %d\n",     get_unaligned_be32 (data + 0x14B));
+	printf ("\tNumber of Logs:           %d\n",     get_unaligned_be32 (data + 0x14F));
+	printf ("\tSize of Configs:          %d\n",     get_unaligned_be32 (data + 0x153));
+	printf ("\tSize of Logs:             %d\n",     get_unaligned_be32 (data + 0x15B));
+	printf ("\tDisk Signatute:           0x%08x\n", get_unaligned_be32 (data + 0x163));
+	printf ("\tDisk Set GUID:            0x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n", data[0x167], data[0x168], data[0x169], data[0x16a], data[0x16b], data[0x16c], data[0x16d], data[0x16e], data[0x16f], data[0x170], data[0x171], data[0x172], data[0x173], data[0x174], data[0x175], data[0x176]);
+	printf ("\tDisk Set GUID:            0x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n", data[0x177], data[0x178], data[0x179], data[0x17a], data[0x17b], data[0x17c], data[0x17d], data[0x17e], data[0x17f], data[0x170], data[0x171], data[0x172], data[0x173], data[0x174], data[0x175], data[0x176]);
+	printf ("\n");
+}
+
+
 /**
  * ldm_parse_privhead - Read the LDM Database PRIVHEAD structure
  * @data:  Raw database PRIVHEAD structure loaded from the device
@@ -166,6 +217,8 @@ static bool ldm_parse_privhead(const u8 *data, struct privhead *ph)
 		ldm_error ("PRIVHEAD checksum doesn't match\n");
 		return false;
 	}
+
+	ldm_dump_privhead (data);
 
 	ph->ver_major = get_unaligned_be16(data + 0x000C);
 	ph->ver_minor = get_unaligned_be16(data + 0x000E);
