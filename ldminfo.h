@@ -34,7 +34,7 @@ extern int ldm_mem_count;
 extern int ldm_mem_maxc;
 
 void dump_database (char *name, struct ldmdb *ldb);
-void copy_database (char *file, int fd, long long size);
+void copy_database (int device, char *name, struct ldmdb *ldb);
 void ldm_free_vblks (struct list_head *vb);
 
 #endif // __LDMINFO_H_

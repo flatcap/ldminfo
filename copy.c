@@ -34,35 +34,33 @@
 #include "ldminfo.h"
 #include "common.h"
 
-#define BUFSIZE_BITS	12
-#define BUFSIZE		(1 << BUFSIZE_BITS)
-
-u64 get_unaligned_be64 (const u8 *ptr);
-
 /**
  * copy_database - Save the LDM Database to a file
  */
-void copy_database (char *file, int device, long long size)
+void copy_database (int device, char *name, struct ldmdb *ldb)
 {
 	unsigned char *buffer;
 	int fpart = 0;	/* Partition table + primary PRIVHEAD */
 	int fdata = 0;	/* LDM Database */
 
-	if (!file)
+	long long start = ldb->ph.config_start * 512;
+	long long size  = ldb->ph.config_size  * 512;
+
+	if (!name)
 		return;
 
-	buffer = kmalloc (BUFSIZE, GFP_KERNEL);
+	buffer = kmalloc (size, 0);
 	if (!buffer)
 		return;
 
-	sprintf ((char*) buffer, "%.58s.part", basename (file));
+	sprintf ((char*) buffer, "%.58s.part", basename (name));
 	fpart = open ((char*)buffer, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
 	if (fpart < 0) {
 		printf ("Couldn't open output file: %s\n", buffer);
 		goto out;
 	}
 
-	sprintf ((char*) buffer, "%.58s.data", basename (file));
+	sprintf ((char*) buffer, "%.58s.data", basename (name));
 	fdata = open ((char*)buffer, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
 	if (fdata < 0) {
 		printf ("Couldn't open output file: %s\n", buffer);
@@ -74,37 +72,26 @@ void copy_database (char *file, int device, long long size)
 		printf ("lseek to %d failed\n", 0);
 		goto out;
 	}
-	if (read (device, buffer, BUFSIZE) < BUFSIZE) {
+	if (read (device, buffer, 4096) < 4096) {
 		printf ("Couldn't read the partition table and primary PRIVHEAD\n");
 		goto out;
 	}
-	if (write (fpart, buffer, BUFSIZE) < BUFSIZE) {
+	if (write (fpart, buffer, 4096) < 4096) {
 		printf ("Couldn't write the partition table and primary PRIVHEAD\n");
 		goto out;
 	}
 
-	if (strncmp ((char*) (buffer + 3072), "PRIVHEAD", 8) == 0) {
-		long long ph;
-		ph  = get_unaligned_be64 (buffer + 3072 + 0x12B);
-		ph += get_unaligned_be64 (buffer + 3072 + 0x133);
-		ph <<= 9;
-		if (ph != size) {
-			printf ("The device appears to be %llu bytes long, but the PRIVHEAD reckons it's %llu bytes.\n", size, ph);
-		}
-	}
-
-	size -= 1048576;	/* 1 MiB */
-
-	if (lseek (device, size, SEEK_SET) < 0) {
+	if (lseek (device, start, SEEK_SET) < 0) {
 		printf ("lseek to %lld failed\n", size);
 		goto out;
 	}
-
-	while (read (device, buffer, BUFSIZE) > 0) {
-		if (write (fdata, buffer, BUFSIZE) < 0) {
-			printf ("Couldn't write to data file\n");
-			goto out;
-		}
+	if (read (device, buffer, size) < size) {
+		printf ("Couldn't read the ldm database\n");
+		goto out;
+	}
+	if (write (fdata, buffer, size) < size) {
+		printf ("Couldn't write the ldm database\n");
+		goto out;
 	}
 
 	printf ("Successfully copied the LDM data\n");

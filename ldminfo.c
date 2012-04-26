@@ -147,11 +147,6 @@ int main (int argc, char *argv[])
 			break;
 		}
 
-		if (copy) {
-			copy_database (argv[a], dev, size);
-			goto close;
-		}
-
 		memset (&bdev, 0, sizeof (bdev));
 		bdev.bd_inode = &ino;
 		ino.i_size = size;
@@ -169,7 +164,9 @@ int main (int argc, char *argv[])
 			goto free;
 		}
 
-		if (dump)
+		if (copy)
+			copy_database (dev, argv[a], pp.ldb);
+		else if (dump)
 			dump_database (argv[a], pp.ldb);
 		else
 			dump_info     (argv[a], &pp);
@@ -183,7 +180,7 @@ free:
 			ldm_free_vblks(&pp.ldb->v_part);
 			kfree (pp.ldb);
 		}
-close:
+
 		close (dev);
 		dev = -1;
 		kfree (pp.pp_buf);
