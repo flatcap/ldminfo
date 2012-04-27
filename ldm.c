@@ -190,6 +190,68 @@ void ldm_dump_privhead (const u8 *data)
 	printf ("\n");
 }
 
+/**
+ * ldm_dump_tocblock
+ */
+void ldm_dump_tocblock (const u8 *data)
+{
+	int offset;
+
+	printf ("TOCBLOCK\n");
+	printf ("\tSignature:      %.8s\n",                       data + 0x00);
+	printf ("\tChecksum:       0x%04x\n", get_unaligned_be32 (data + 0x08));
+	printf ("\tUpdate Seq Num: %lld\n",   get_unaligned_be64 (data + 0x0C));
+	printf ("\tZeros:          0x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n", data[0x14], data[0x15], data[0x16], data[0x17], data[0x18], data[0x19], data[0x1A], data[0x1B], data[0x1C], data[0x1D], data[0x1E], data[0x1F], data[0x20], data[0x21], data[0x22], data[0x23]);
+
+	for (offset = 0x24; offset < 0x200; offset += 0x22) {
+		if (!data[offset])
+			break;
+		printf ("\tRegion\n");
+		printf ("\t\tName:             %.8s\n",                         data + offset + 0x00);
+		printf ("\t\tFlags:            0x%04x\n",   get_unaligned_be16 (data + offset + 0x08));
+		printf ("\t\tStart LBA (rel):  0x%04llx\n", get_unaligned_be64 (data + offset + 0x0A));
+		printf ("\t\tEnd   LBA (rel):  0x%04llx\n", get_unaligned_be64 (data + offset + 0x12));
+		printf ("\t\tUnknown:          0x%04x\n",   get_unaligned_be16 (data + offset + 0x1A));
+		printf ("\t\tNumber of Copies: %d\n",       get_unaligned_be16 (data + offset + 0x1C));
+		printf ("\t\tZeros:            0x %02x %02x %02x %02x\n", data[offset + 0x1E], data[offset + 0x1F], data[offset + 0x20], data[offset + 0x21]);
+	}
+
+	printf ("\n");
+}
+
+/**
+ * ldm_dump_vmdb
+ */
+void ldm_dump_vmdb (const u8 *data)
+{
+	printf ("VMDB\n");
+	printf ("\tSignature:                     %.4s\n",                         data + 0x00);
+	printf ("\tSeq Num of last VBLK:          %d\n",       get_unaligned_be32 (data + 0x04));
+	printf ("\tSize of VBLK:                  %d\n",       get_unaligned_be32 (data + 0x08));
+	printf ("\tHeader length:                 %d\n",       get_unaligned_be32 (data + 0x0C));
+	printf ("\tUpdate status:                 0x%02x\n",   get_unaligned_be32 (data + 0x10));
+	printf ("\tVersion major:                 0x%02x\n",   get_unaligned_be32 (data + 0x12));
+	printf ("\tVersion minor:                 0x%02x\n",   get_unaligned_be32 (data + 0x14));
+	printf ("\tDisk Group Name:               %.31s\n",                        data + 0x16);
+	printf ("\tDisk Group GUID:               %.64s\n",                        data + 0x35);
+	printf ("\tTransaction ID (committed):    0x%08llx\n", get_unaligned_be64 (data + 0x75));
+	printf ("\tTransaction ID (pending):      0x%08llx\n", get_unaligned_be64 (data + 0x7D));
+	printf ("\tNum of Committed Volumes:      %d\n",       get_unaligned_be32 (data + 0x85));
+	printf ("\tNum of Committed Components:   %d\n",       get_unaligned_be32 (data + 0x89));
+	printf ("\tNum of Committed Partitions:   %d\n",       get_unaligned_be32 (data + 0x8D));
+	printf ("\tNum of Committed Disks:        %d\n",       get_unaligned_be32 (data + 0x91));
+	printf ("\tNum of Committed Disk Accesss: %d\n",       get_unaligned_be32 (data + 0x95));
+	printf ("\tZeros:                         0x %02x %02x %02x %02x %02x %02x %02x %02x\n", data[0x99], data[0x9A], data[0x9B], data[0x9C], data[0x9D], data[0x9E], data[0x9F], data[0xA0]);
+	printf ("\tNum of Pending   Volumes:      %d\n",       get_unaligned_be32 (data + 0xA1));
+	printf ("\tNum of Pending   Components:   %d\n",       get_unaligned_be32 (data + 0xA5));
+	printf ("\tNum of Pending   Partitions:   %d\n",       get_unaligned_be32 (data + 0xA9));
+	printf ("\tNum of Pending   Disks:        %d\n",       get_unaligned_be32 (data + 0xAD));
+	printf ("\tNum of Pending   Disk Accesss: %d\n",       get_unaligned_be32 (data + 0xB1));
+	printf ("\tZeros:                         0x %02x %02x %02x %02x %02x %02x %02x %02x\n", data[0xB5], data[0xB6], data[0xB7], data[0xB8], data[0xB9], data[0xBA], data[0xBB], data[0xBC]);
+	printf ("\tLast Update:                   %s",         ldm_get_date       (data + 0xBD));
+	printf ("\n");
+}
+
 
 /**
  * ldm_parse_privhead - Read the LDM Database PRIVHEAD structure
@@ -218,7 +280,7 @@ static bool ldm_parse_privhead(const u8 *data, struct privhead *ph)
 		return false;
 	}
 
-	ldm_dump_privhead (data);
+	//ldm_dump_privhead (data);
 
 	ph->ver_major = get_unaligned_be16(data + 0x000C);
 	ph->ver_minor = get_unaligned_be16(data + 0x000E);
@@ -283,6 +345,8 @@ static bool ldm_parse_tocblock (const u8 *data, struct tocblock *toc)
 		return false;
 	}
 
+	//ldm_dump_tocblock (data);
+
 	strncpy ((char*)toc->bitmap1_name, (char*)(data + 0x24), sizeof (toc->bitmap1_name));
 	toc->bitmap1_name[sizeof (toc->bitmap1_name) - 1] = 0;
 	toc->bitmap1_start = get_unaligned_be64(data + 0x2E);
@@ -329,6 +393,8 @@ static bool ldm_parse_vmdb (const u8 *data, struct vmdb *vm)
 		ldm_crit ("Cannot find the VMDB, database may be corrupt.");
 		return false;
 	}
+
+	//ldm_dump_vmdb (data);
 
 	vm->ver_major = get_unaligned_be16(data + 0x12);
 	vm->ver_minor = get_unaligned_be16(data + 0x14);
